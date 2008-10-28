@@ -1,2 +1,6 @@
+2.0 database-based imputation objects.
+
+    option in MIcombine() to add complete-data degrees of freedom
+
 1.0  First public release
 

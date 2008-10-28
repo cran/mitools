@@ -1,7 +1,22 @@
 
+imputationList<-function(datasets,...) UseMethod("imputationList")
 
-imputationList<-function(datasets){
-  rval<-list(imputations=datasets, call=sys.call())
+imputationList.character<-function(datasets, dbtype, dbname, ...){
+  if(dbtype=="ODBC"){
+    library(RODBC)
+    connection<-odbcConnect(dbname,...)
+  } else {
+    driver<-dbDriver(dbtype)
+    connection<-dbConnect(driver,dbname,...)
+  }
+  
+  rval<-list(imputations=datasets, db=list(connection=connection, dbname=dbname,dbtype=dbtype,...), call=sys.call(-1))
+  class(rval)<-c("DBimputationList","imputationList")
+  rval
+}
+
+imputationList.default<-function(datasets,...){
+  rval<-list(imputations=datasets, call=sys.call(-1))
   class(rval)<-"imputationList"
   rval
 }
@@ -11,6 +26,48 @@ print.imputationList<-function(x,...){
   print(x$call)
 }
 
+with.DBimputationList<-function(data,expr,...){
+  ee<-substitute(expr)
+  imputations<-lapply(data$imputations,
+                           function(thistable) getvars(all.vars(ee), data$db$connection, thistable,
+                                                       db.only=FALSE,updates=data$updates))
+  pf<-parent.frame()
+
+  expr<-substitute(expr)
+  results<-lapply(imputations, function(dataset) eval(expr, dataset, enclos=pf))
+  
+
+  if (all(sapply(results, inherits,  what="imputationResult"))){
+    class(results)<-"imputationResultList"
+    results$call<-sys.call(-1)
+  } else {
+    attr(results,"call")<-sys.call(-1)
+  }
+  
+  results
+
+}
+
+close.DBimputationList<-function(con,...){
+  dbcon<-con$db$connection
+  if (is(dbcon,"DBIConnection"))
+    dbDisconnect(dbcon)
+  else
+    close(dbcon)
+  invisible(con)
+}
+
+open.DBimputationList<-function(con,...){
+  if(con$db$dbtype=="ODBC"){
+    oldenc<-attr(con$db$connection)
+    con$db$connection<-odbcReConnect(con$db$connection,...)
+    attr(con$db$connection,"encoding")<-oldenc
+  } else {
+    dbdriver<-dbDriver(con$db$dbtype)
+    con$db$connection<-dbConnect(dbdriver,dbname=con$db$dbname,...)
+  }
+  con
+}
 
 with.imputationList<-function(data, expr,fun,...){
 
@@ -24,9 +81,9 @@ with.imputationList<-function(data, expr,fun,...){
 
   if (all(sapply(results, inherits,  what="imputationResult"))){
     class(results)<-"imputationResultList"
-    results$call<-sys.call()
+    results$call<-sys.call(-1)
   } else {
-    attr(results,"call")<-sys.call()
+    attr(results,"call")<-sys.call(-1)
   }
   
   results
@@ -38,21 +95,21 @@ with.imputationList<-function(data, expr,fun,...){
 MIcombine<-function(results, ...) UseMethod("MIcombine")
 
 
-MIcombine.imputationResultList<-function(results, call=NULL,...){
+MIcombine.imputationResultList<-function(results, call=NULL,df.complete=Inf,...){
 
-  vars<-lapply(results, vcov)
+  vars<-suppressWarnings(lapply(results, vcov))
   thetas<-lapply(results, coef)
-  rval<-MIcombine(thetas, vars,call=sys.call())
+  rval<-MIcombine(thetas, vars,call=sys.call(-1),df.complete=df.complete)
   rval$call<-c(results$call, call)
   rval
 }
 
-MIcombine.default<-function(results, variances,call=sys.call(),...){
+MIcombine.default<-function(results, variances,call=sys.call(),df.complete=Inf,...){
 
   m<-length(results)
   oldcall<-attr(results,"call")
   if (missing(variances)){
-    variances<-lapply(results, vcov)
+    variances<-suppressWarnings(lapply(results, vcov))
     results<-lapply(results,coef)
   }
   ## yes, we do need a loop here.
@@ -70,6 +127,12 @@ MIcombine.default<-function(results, variances,call=sys.call(),...){
   df<-(m-1)*(1+ 1/r)^2
   if (is.matrix(df))
     df<-diag(df)
+  if(is.finite(df.complete)){
+    dfobs<-((df.complete+1)/(df.complete+3))*df.complete*vbar/(vbar+evar)
+    if(is.matrix(dfobs))
+      dfobs<-diag(dfobs)
+    df<-1/(1/dfobs+1/df)
+  }
   if (is.matrix(r))
     r<-diag(r)
   rval<-list(coefficients=cbar,

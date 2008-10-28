@@ -16,8 +16,8 @@ of missing information.
 }
 \usage{
 MIcombine(results, ...)
-\method{MIcombine}{default}(results,variances,call=sys.call(),...)
-\method{MIcombine}{imputationResultList}(results,call=NULL,...)
+\method{MIcombine}{default}(results,variances,call=sys.call(),df.complete=Inf,...)
+\method{MIcombine}{imputationResultList}(results,call=NULL,df.complete=Inf,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,6 +26,7 @@ MIcombine(results, ...)
     \code{variances} should be the corresponding variance-covariance
     matrices}
   \item{call}{A function call for labelling the results}
+  \item{df.complete}{Complete-data degrees of freedom}
   \item{\dots}{Other arguments, not used}
 }
 \details{
@@ -34,6 +35,10 @@ MIcombine(results, ...)
 parameter vectors or a list of objects that have \code{coef} and
 \code{vcov} methods.  In the former case a list of variance-covariance
 matrices must be supplied as the second argument.
+
+The complete-data degrees of freedom are used when a complete-data
+analysis would use a t-distribution rather than a Normal distribution
+for confidence intervals, such as some survey applications.
 }
 \value{
   An object of class \code{MIresult} with \code{summary} and

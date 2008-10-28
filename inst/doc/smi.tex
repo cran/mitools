@@ -4,7 +4,7 @@
 \author{Thomas Lumley}
 
 %\VignetteIndexEntry{smi}{Combining multiple imputations}
-\usepackage{/usr/local/thomas/Rarchive/r-devel/R/share/texmf/Sweave}
+\usepackage{/Library/Frameworks/R.framework/Resources/share/texmf/Sweave}
 \begin{document}
 \maketitle
 
@@ -36,7 +36,7 @@ We now combine the imputations for men and women, first defining a \texttt{sex} 
 \end{Sinput}
 \begin{Soutput}
 MI data with 5 datasets
-Call: rbind(...)
+Call: rbind(deparse.level, ...)
 \end{Soutput}
 \begin{Sinput}
 > colnames(all)
@@ -56,35 +56,35 @@ Now tabulate drinking frequency by sex
 [[1]]
    drkfre
 sex Non drinker not in last wk <3 days last wk >=3 days last wk
-  0 282         201            105              12             
-  1 207         194            134              35             
+  0         282            201             105               12
+  1         207            194             134               35
 
 [[2]]
    drkfre
 sex Non drinker not in last wk <3 days last wk >=3 days last wk
-  0 282         195            109              14             
-  1 200         200            132              38             
+  0         282            195             109               14
+  1         200            200             132               38
 
 [[3]]
    drkfre
 sex Non drinker not in last wk <3 days last wk >=3 days last wk
-  0 278         202            109              11             
-  1 209         194            131              36             
+  0         278            202             109               11
+  1         209            194             131               36
 
 [[4]]
    drkfre
 sex Non drinker not in last wk <3 days last wk >=3 days last wk
-  0 284         188            114              14             
-  1 203         206            128              33             
+  0         284            188             114               14
+  1         203            206             128               33
 
 [[5]]
    drkfre
 sex Non drinker not in last wk <3 days last wk >=3 days last wk
-  0 288         191            109              12             
-  1 206         192            136              36             
+  0         288            191             109               12
+  1         206            192             136               36
 
 attr(,"call")
-with.imputationList(all, table(sex, drkfre))
+with(all, table(sex, drkfre))
 \end{Soutput}
 \end{Schunk}
 and define a new `regular drinking' variables.
@@ -97,35 +97,35 @@ and define a new `regular drinking' variables.
 [[1]]
    drkreg
 sex FALSE TRUE
-  0 483   117 
-  1 401   169 
+  0   483  117
+  1   401  169
 
 [[2]]
    drkreg
 sex FALSE TRUE
-  0 477   123 
-  1 400   170 
+  0   477  123
+  1   400  170
 
 [[3]]
    drkreg
 sex FALSE TRUE
-  0 480   120 
-  1 403   167 
+  0   480  120
+  1   403  167
 
 [[4]]
    drkreg
 sex FALSE TRUE
-  0 472   128 
-  1 409   161 
+  0   472  128
+  1   409  161
 
 [[5]]
    drkreg
 sex FALSE TRUE
-  0 479   121 
-  1 398   172 
+  0   479  121
+  1   398  172
 
 attr(,"call")
-with.imputationList(all, table(sex, drkreg))
+with(all, table(sex, drkreg))
 \end{Soutput}
 \end{Schunk}
 
@@ -137,7 +137,7 @@ We can now fit a logistic regression model for trends over time in drinking:
 \end{Sinput}
 \begin{Soutput}
 Multiple imputation results:
-      with.imputationList(all, glm(drkreg ~ wave * sex, family = binomial()))
+      with(all, glm(drkreg ~ wave * sex, family = binomial()))
       MIcombine.default(model1)
                 results         se
 (Intercept) -2.25974358 0.26830731
@@ -150,7 +150,7 @@ wave:sex    -0.03725422 0.08609199
 \end{Sinput}
 \begin{Soutput}
 Multiple imputation results:
-      with.imputationList(all, glm(drkreg ~ wave * sex, family = binomial()))
+      with(all, glm(drkreg ~ wave * sex, family = binomial()))
       MIcombine.default(model1)
                 results         se      (lower     upper) missInfo
 (Intercept) -2.25974358 0.26830731 -2.78584855 -1.7336386      4 %
