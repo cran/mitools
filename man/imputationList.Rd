@@ -52,15 +52,15 @@ access to the database is sufficient.
 
   }
 \examples{
-data.dir<-system.file("dta",package="mitools")
-files.men<-list.files(data.dir,pattern="m.\\.dta$",full=TRUE)
-men<-imputationList(lapply(files.men, foreign::read.dta))
-files.women<-list.files(data.dir,pattern="f.\\.dta$",full=TRUE)
-women<-imputationList(lapply(files.women, foreign::read.dta))
-men<-update(men, sex=1)
-women<-update(women,sex=0)
-all<-rbind(men,women)
-all<-update(all, drinkreg=as.numeric(drkfre)>2)
+data.dir <- system.file("dta",package="mitools")
+files.men <- list.files(data.dir,pattern="m.\\\\.dta$",full=TRUE)
+men <- imputationList(lapply(files.men, foreign::read.dta))
+files.women <- list.files(data.dir,pattern="f.\\\\.dta$",full=TRUE)
+women <- imputationList(lapply(files.women, foreign::read.dta))
+men <- update(men, sex=1)
+women <- update(women,sex=0)
+all <- rbind(men,women)
+all <- update(all, drinkreg=as.numeric(drkfre)>2)
 all
 }
 \keyword{manip}% at aleast one, from doc/KEYWORDS
