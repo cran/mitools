@@ -52,6 +52,8 @@ access to the database is sufficient.
 
   }
 \examples{
+\dontrun{
+## CRAN doesn't like this example
 data.dir <- system.file("dta",package="mitools")
 files.men <- list.files(data.dir,pattern="m.\\\\.dta$",full=TRUE)
 men <- imputationList(lapply(files.men, foreign::read.dta))
@@ -62,6 +64,7 @@ women <- update(women,sex=0)
 all <- rbind(men,women)
 all <- update(all, drinkreg=as.numeric(drkfre)>2)
 all
+}
 }
 \keyword{manip}% at aleast one, from doc/KEYWORDS
 

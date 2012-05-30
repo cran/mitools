@@ -170,7 +170,7 @@ summary.MIresult<-function(object,...,alpha=0.05, logeffect=FALSE){
   cat("Multiple imputation results:\n")
   lapply(object$call, function(a) {cat("      ");print(a)})
   out<-data.frame(results=coef(object), se=sqrt(diag(vcov(object))))
-  crit<-qt(alpha/2,object$df, lower=FALSE)
+  crit<-qt(alpha/2,object$df, lower.tail=FALSE)
   out$"(lower"<-out$results-crit*out$se
   out$"upper)"<-out$results+crit*out$se
   if (logeffect){
