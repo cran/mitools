@@ -3,11 +3,10 @@ imputationList<-function(datasets,...) UseMethod("imputationList")
 
 imputationList.character<-function(datasets, dbtype, dbname, ...){
   if(dbtype=="ODBC"){
-    library(RODBC)
-    connection<-odbcConnect(dbname,...)
+    connection<-RODBC::odbcConnect(dbname,...)
   } else {
-    driver<-dbDriver(dbtype)
-    connection<-dbConnect(driver,dbname,...)
+    driver<-DBI::dbDriver(dbtype)
+    connection<-DBI::dbConnect(driver,dbname,...)
   }
   
   rval<-list(imputations=datasets, db=list(connection=connection, dbname=dbname,dbtype=dbtype,...), call=sys.call(-1))
@@ -51,7 +50,7 @@ with.DBimputationList<-function(data,expr,...){
 close.DBimputationList<-function(con,...){
   dbcon<-con$db$connection
   if (is(dbcon,"DBIConnection"))
-    dbDisconnect(dbcon)
+    DBI::dbDisconnect(dbcon)
   else
     close(dbcon)
   invisible(con)
@@ -60,11 +59,11 @@ close.DBimputationList<-function(con,...){
 open.DBimputationList<-function(con,...){
   if(con$db$dbtype=="ODBC"){
     oldenc<-attr(con$db$connection)
-    con$db$connection<-odbcReConnect(con$db$connection,...)
+    con$db$connection<-RODBC::odbcReConnect(con$db$connection,...)
     attr(con$db$connection,"encoding")<-oldenc
   } else {
-    dbdriver<-dbDriver(con$db$dbtype)
-    con$db$connection<-dbConnect(dbdriver,dbname=con$db$dbname,...)
+    dbdriver<-DBI::dbDriver(con$db$dbtype)
+    con$db$connection<-DBI::dbConnect(dbdriver,dbname=con$db$dbname,...)
   }
   con
 }
