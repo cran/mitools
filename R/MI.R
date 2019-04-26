@@ -3,10 +3,11 @@ imputationList<-function(datasets,...) UseMethod("imputationList")
 
 imputationList.character<-function(datasets, dbtype, dbname, ...){
   if(dbtype=="ODBC"){
-    connection<-RODBC::odbcConnect(dbname,...)
+      connection<-RODBC::odbcConnect(dbname,...)
+      message("RODBC interface is deprecated; try to use 'odbc' package instead")
   } else {
-    driver<-DBI::dbDriver(dbtype)
-    connection<-DBI::dbConnect(driver,dbname,...)
+    driver<-dbDriver(dbtype)
+    connection<-dbConnect(driver,dbname,...)
   }
   
   rval<-list(imputations=datasets, db=list(connection=connection, dbname=dbname,dbtype=dbtype,...), call=sys.call(-1))
@@ -50,7 +51,7 @@ with.DBimputationList<-function(data,expr,...){
 close.DBimputationList<-function(con,...){
   dbcon<-con$db$connection
   if (is(dbcon,"DBIConnection"))
-    DBI::dbDisconnect(dbcon)
+    dbDisconnect(dbcon)
   else
     close(dbcon)
   invisible(con)
@@ -62,8 +63,8 @@ open.DBimputationList<-function(con,...){
     con$db$connection<-RODBC::odbcReConnect(con$db$connection,...)
     attr(con$db$connection,"encoding")<-oldenc
   } else {
-    dbdriver<-DBI::dbDriver(con$db$dbtype)
-    con$db$connection<-DBI::dbConnect(dbdriver,dbname=con$db$dbname,...)
+    dbdriver<-dbDriver(con$db$dbtype)
+    con$db$connection<-dbConnect(dbdriver,dbname=con$db$dbname,...)
   }
   con
 }

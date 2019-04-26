@@ -50,14 +50,14 @@ getvars<-function (vars, dbconnection, tables, db.only = TRUE, updates=NULL)
   }
   else {
     query <- sub("@tab@", tables, "select * from @tab@ limit 1")
-    oneline <- DBI::dbGetQuery(dbconnection, query)
+    oneline <- dbGetQuery(dbconnection, query)
     in.db <- infilter$varlist[infilter$varlist %in% names(oneline)]
   }
   query <- paste("select", paste(in.db, collapse = ", "), "from", 
                  tables)
   
   if (is(dbconnection, "DBIConnection"))
-    df <- DBI::dbGetQuery(dbconnection, query)
+    df <- dbGetQuery(dbconnection, query)
   else ##ODBC
     df<-RODBC::sqlQuery(dbconnection, query)
   
